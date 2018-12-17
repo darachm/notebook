@@ -35,5 +35,4 @@ if main
         with f as open(config["notebook_directory"]+"/"+this_hash)
             print to f the entry again
 
-
     os.copy(config["template_file"],config["intake_notes"])
