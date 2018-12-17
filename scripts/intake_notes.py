@@ -1,38 +1,48 @@
+#!/usr/bin/python3
 
-#import yaml
 import argparse
 import os
-#import hash
+import sys
+import yaml
+import maps
+import hashlib 
 #import isoties
 
-if main
+if __name__ == '__main__':
 
-    args.argparsenew
-    args.adda command ("-p","parse it",default=False) 
-    args.adda command ("config_file","config file",default="config.notes") 
-    argparse it
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p",help="parse it?",action="store_true") 
+    parser.add_argument("--config-file",help="what is config?",
+        default="config.notes") 
+    args = parser.parse_args()
 
-    config = []
-    with c as open(args.config_file,"r"):
-        config = yamlread c
-    
+    config = yaml.load(open(args.config_file,"r"))
+
     if not args.p:
-        return 0
+        sys.exit(0)
 
-    with f as open(config["intake_notes"],"r"):
+    these_entries = list(yaml.load_all(open(config["intake_file"],"r")))
 
-        this_file = yamlread f
+    for this_entry in these_entries:
 
-        this_hash = hash(this_file)
+        this_hash_string = (
+            str(this_entry["d"]) + 
+            "".join(this_entry["t"]) +
+            "".join(this_entry["f"]) +
+            "".join(this_entry["n"])
+            )
 
-        for i in this_file["f"]:
-            this_file["n"] = this_file["n"].sub(i,this_hash+i)
+        this_hash_hex = hashlib.blake2b(this_hash_string.encode("utf-8")).hexdigest()
+        print(this_hash_hex)
 
-        this_file["f"] = this_file["f"].concat hash in cool way
-
-        this_file["d"] = this_file["d"].parse right
-
-        with f as open(config["notebook_directory"]+"/"+this_hash)
-            print to f the entry again
-
-    os.copy(config["template_file"],config["intake_notes"])
+#    for i in this_file["f"]:
+#        this_file["n"] = this_file["n"].sub(i,this_hash+i)
+#
+#    this_file["f"] = this_file["f"].concat hash in cool way
+#
+#    this_file["d"] = this_file["d"].parse right
+#
+#    with f as open(config["notebook_directory"]+"/"+this_hash)
+#        print to f the entry again
+#
+#    os.copy(config["template_file"],config["intake_notes"])
