@@ -126,14 +126,27 @@ if __name__ == '__main__':
 
             for i in query_result:
 
-                _anitem = _entrylist.add(dominate.tags.li())
-                _anitem += dominate.tags.h3(str(i["d"]))
-                _anitem += dominate.tags.h4(i["t"])
+                if i["correction"] == "":
 
-                for j in i["f"]:
-                    _anitem += dominate.tags.h4(dominate.tags.a(j,href=i["path"]+j))
+                    _anitem = _entrylist.add(dominate.tags.li())
+                    _anitem += dominate.tags.h3(str(i["d"]))
+                    _anitem += dominate.tags.h4(i["t"])
+    
+                    for j in i["f"]:
+                        _anitem += dominate.tags.h4(dominate.tags.a(j,href=i["path"]+j))
+    
+                    _anitem += dominate.tags.p(i["n"])
 
-                _anitem += dominate.tags.p(i["n"])
+                else:
+
+                    _anitem += dominate.tags.h6("--- correction ---")
+
+                    _anitem += dominate.tags.h4(i["t"])
+    
+                    for j in i["f"]:
+                        _anitem += dominate.tags.h4(dominate.tags.a(j,href=i["path"]+j))
+    
+                    _anitem += dominate.tags.p(i["n"])
 
             f.write(report.render())
 
