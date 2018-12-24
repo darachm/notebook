@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
             if args.q in this_entry['t']:
 
-                this_entry["path"] = config["notebook_directory"]+"/"+eachdir+"/"
+                this_entry["hash"] = eachdir
                 query_result.append(this_entry)
 
         query_result = sorted(query_result, key=lambda x: str(x["d"])+str(x["correction"]))
@@ -130,10 +130,12 @@ if __name__ == '__main__':
 
                     _anitem = _entrylist.add(dominate.tags.li())
                     _anitem += dominate.tags.h3(str(i["d"]))
-                    _anitem += dominate.tags.h4(i["t"])
+                    _anitem += dominate.tags.h4(i["hash"])
+                    _anitem += dominate.tags.h4(" ".join(i["t"]))
     
                     for j in i["f"]:
-                        _anitem += dominate.tags.h4(dominate.tags.a(j,href=i["path"]+j))
+                        _anitem += dominate.tags.h4(dominate.tags.a(j,
+                            href=config["notebook_directory"]+"/"+i["hash"]+"/"+j))
     
                     _anitem += dominate.tags.p(i["n"])
 
@@ -141,10 +143,12 @@ if __name__ == '__main__':
 
                     _anitem += dominate.tags.h6("--- correction ---")
 
-                    _anitem += dominate.tags.h4(i["t"])
+                    _anitem += dominate.tags.h4(i["hash"])
+                    _anitem += dominate.tags.h4(" ".join(i["t"]))
     
                     for j in i["f"]:
-                        _anitem += dominate.tags.h4(dominate.tags.a(j,href=i["path"]+j))
+                        _anitem += dominate.tags.h4(dominate.tags.a(j,
+                            href=config["notebook_directory"]+"/"+i["hash"]+"/"+j))
     
                     _anitem += dominate.tags.p(i["n"])
 
