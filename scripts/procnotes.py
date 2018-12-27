@@ -26,10 +26,14 @@ if __name__ == '__main__':
     if not args.p and args.q == "":
         raise Exception("I need to know what to do, you've told me nothing to do")
 
+    raw_notebook = list(yaml.load_all(open(config["notebook_directory"]+"/"+config["raw_notebook"],"r")))[0]
+    if raw_notebook is None:
+        raise Exception("can't read raw notebook")
+
     if args.p:
 
         these_entries = list(yaml.load_all(open(config["intake_file"],"r")))
-    
+
         for this_entry in these_entries:
     
             if this_entry["d"] is None or this_entry["t"] is [] or this_entry["n"] is None:
@@ -60,9 +64,11 @@ if __name__ == '__main__':
             this_entry["d"] = isodate.parse_date(this_entry["d"])
     
             entry_dir = config["notebook_directory"]+"/"+this_hash_hex
+            this_entry["hash"] = this_hash_hex
+
             print(entry_dir)
             os.makedirs(entry_dir,exist_ok=True)
-    
+
             for i, afile in enumerate(this_entry["f"]):
                 try:
                     shutil.copyfile(
@@ -75,13 +81,14 @@ if __name__ == '__main__':
     
             with open(entry_dir+"/"+this_hash_hex+"_notes.txt","w") as notefile:
                 notefile.write(yaml.dump(this_entry))
-                
+                raw_notebook[this_entry["hash"]] = this_entry
     
         os.makedirs(config["trash"],exist_ok=True)
         for this_entry in these_entries:
             for i, afile in enumerate(this_entry["f"]):
                 this_real_filename = re.sub(r"^[0-9a-z]{10}_","",this_entry["f"][i])
                 try:
+                    pass
                     shutil.move(
                         this_real_filename,
                         config["trash"]+"/"+this_real_filename
@@ -103,14 +110,13 @@ if __name__ == '__main__':
 
         query_result = list()
 
-        for eachdir in os.listdir(config["notebook_directory"]):
+        for each_key in raw_notebook:
+    
+            each_entry = raw_notebook[each_key]
 
-            this_entry = yaml.load(open(config["notebook_directory"]+"/"+eachdir+"/"+eachdir+"_notes.txt","r"))
+            if args.q in each_entry['t']:
 
-            if args.q in this_entry['t']:
-
-                this_entry["hash"] = eachdir
-                query_result.append(this_entry)
+                query_result.append(each_entry)
 
         query_result = sorted(query_result, key=lambda x: str(x["d"])+str(x["correction"]))
 
@@ -153,4 +159,7 @@ if __name__ == '__main__':
                     _anitem += dominate.tags.p(i["n"])
 
             f.write(report.render())
+
+    with open(config["notebook_directory"]+"/"+config["raw_notebook"],"w") as notefile:
+        notefile.write(yaml.dump(raw_notebook))
 

@@ -1,5 +1,6 @@
 template_file: ".notes.yaml"
 intake_file: "notes.yaml"
 notebook_directory: "book"
+raw_notebook: "raw_notebook.yaml"
 trash: "trash"
 css: .style.css
