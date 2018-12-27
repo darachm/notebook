@@ -1,0 +1,16 @@
+To use:
+
+- `touch book/raw_notebook.yaml`
+- edit `notes.yaml` and write something, with tags in `t` and date in `d` 
+    (ISO FORMAT PLZ), and notes in `n`, and associated files in `f`. A template
+    is at `.notes.yaml` that is copied over each parsing, so you can copy in 
+    manually to start over.
+- Once you have something, run `python3 scripts/procnotes.py -p -t`. The `-t`
+    means test, so it'll make a `test_report.html` from your entry.
+- When it is to your liking (`notes.yaml` rendered in the `test_report.html`,
+    then drop the `-t` flag and just run with `-q`.
+- Then to make a notebook report, run with `-q SOMETHING` where `SOMETHING` is
+    a tag you want to query out.
+
+You can edit the `book/raw_notebook.yaml` directly and it should still all work
+nicely. The hashes won't be accurate, but oh well.
