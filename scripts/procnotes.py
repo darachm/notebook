@@ -46,8 +46,8 @@ if __name__ == '__main__':
     
             this_hash_hex = hashlib.sha1(
                     (   str(this_entry["d"]) + 
-                        "".join(this_entry["t"]) +
-                        "".join(this_entry["f"]) +
+                        #"".join(this_entry["t"]) +
+                        #"".join(this_entry["f"]) +
                         "".join(this_entry["n"]) +
                         str(this_entry["correction"])
                         ).encode("utf-8")
