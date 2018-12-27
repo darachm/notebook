@@ -11,12 +11,14 @@ import isodate
 import re 
 import shutil
 import dominate
+import dominate.util
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-p",help="parse it?",action="store_true") 
     parser.add_argument("-q",help="query out a tag")
+    parser.add_argument("-t",help="test formatting",action="store_true")
     parser.add_argument("--config-file",help="what is config?",
         default="config.notes") 
     args = parser.parse_args()
@@ -26,13 +28,19 @@ if __name__ == '__main__':
     if not args.p and args.q == "":
         raise Exception("I need to know what to do, you've told me nothing to do")
 
-    raw_notebook = list(yaml.load_all(open(config["notebook_directory"]+"/"+config["raw_notebook"],"r")))[0]
-    if raw_notebook is None:
+    try:
+        raw_notebook = list(yaml.load_all(open(config["notebook_directory"]+"/"+config["raw_notebook"],"r")))
+    except:
         raise Exception("can't read raw notebook")
+    if len(raw_notebook) == 0:
+        raw_notebook = {}
+    else:
+        raw_notebook = raw_notebook[0]
 
     if args.p:
 
         these_entries = list(yaml.load_all(open(config["intake_file"],"r")))
+        procd_entries = list()
 
         for this_entry in these_entries:
     
@@ -62,49 +70,94 @@ if __name__ == '__main__':
                 this_entry["d"] = "20"+this_entry["d"]
     
             this_entry["d"] = isodate.parse_date(this_entry["d"])
-    
-            entry_dir = config["notebook_directory"]+"/"+this_hash_hex
             this_entry["hash"] = this_hash_hex
 
-            print(entry_dir)
-            os.makedirs(entry_dir,exist_ok=True)
+            procd_entries.append(this_entry)
 
-            for i, afile in enumerate(this_entry["f"]):
-                try:
-                    shutil.copyfile(
-                        this_entry["f"][i],
-                        entry_dir+"/"+this_hash_hex+"_"+this_entry["f"][i])
-                except:
-                    raise Exception("copying "+afile+" failed!")
-                this_entry["n"] = re.sub(afile,this_hash_hex+"_"+afile,this_entry["n"])
-                this_entry["f"][i] = this_hash_hex+"_"+this_entry["f"][i]
+        if not args.t:
+
+            for this_entry in procd_entries:
+
+                  entry_dir = config["notebook_directory"]+"/"+this_hash_hex
+                  print(entry_dir)
+                  os.makedirs(entry_dir,exist_ok=True)
+      
+                  for i, afile in enumerate(this_entry["f"]):
+                      try:
+                          shutil.copyfile(
+                              this_entry["f"][i],
+                              entry_dir+"/"+this_hash_hex+"_"+this_entry["f"][i])
+                      except:
+                          raise Exception("copying "+afile+" failed!")
+                      this_entry["n"] = re.sub(afile,this_hash_hex+"_"+afile,this_entry["n"])
+                      this_entry["f"][i] = this_hash_hex+"_"+this_entry["f"][i]
+          
+                  with open(entry_dir+"/"+this_hash_hex+"_notes.txt","w") as notefile:
+                      notefile.write(yaml.dump(this_entry))
+                      raw_notebook[this_entry["hash"]] = this_entry
+      
+                  os.makedirs(config["trash"],exist_ok=True)
+                  for this_entry in these_entries:
+                      for i, afile in enumerate(this_entry["f"]):
+                          this_real_filename = re.sub(r"^[0-9a-z]{10}_","",this_entry["f"][i])
+                          try:
+                              pass
+                              shutil.move(
+                                  this_real_filename,
+                                  config["trash"]+"/"+this_real_filename
+                                  )
+                          except:
+                              pass
+              
+                  shutil.move(
+                      config["intake_file"],
+                      config["trash"]+"/"+this_hash_hex+"_notes.txt"
+                      )
+              
+                  shutil.copyfile(
+                      config["template_file"],
+                      config["intake_file"]
+                      )
+        elif args.t:
+
+            with open("test_report.html","w") as test_report:
+
+                report = dominate.document(title="Test report")
+        
+                with report.head:
+                    dominate.tags.link(rel='stylesheet',href=config['css'])
+        
+                _entrylist = report.add(dominate.tags.ul())
+        
+                for this_entry in procd_entries:
+        
+                    if this_entry["correction"] == "":
     
-            with open(entry_dir+"/"+this_hash_hex+"_notes.txt","w") as notefile:
-                notefile.write(yaml.dump(this_entry))
-                raw_notebook[this_entry["hash"]] = this_entry
+                        _anitem = _entrylist.add(dominate.tags.li())
+                        _anitem += dominate.tags.h3(str(this_entry["d"]))
+                        _anitem += dominate.tags.h4(this_entry["hash"])
+                        _anitem += dominate.tags.h4(" ".join(this_entry["t"]))
+        
+                        for j in this_entry["f"]:
+                            _anitem += dominate.tags.h4(dominate.tags.a(j,
+                                href=config["notebook_directory"]+"/"+this_entry["hash"]+"/"+j))
+        
+                        _anitem += dominate.tags.p(dominate.util.raw(this_entry["n"]))
     
-        os.makedirs(config["trash"],exist_ok=True)
-        for this_entry in these_entries:
-            for i, afile in enumerate(this_entry["f"]):
-                this_real_filename = re.sub(r"^[0-9a-z]{10}_","",this_entry["f"][i])
-                try:
-                    pass
-                    shutil.move(
-                        this_real_filename,
-                        config["trash"]+"/"+this_real_filename
-                        )
-                except:
-                    pass
+                    else:
     
-        shutil.move(
-            config["intake_file"],
-            config["trash"]+"/"+this_hash_hex+"_notes.txt"
-            )
+                        _anitem += dominate.tags.h6("--- correction ---")
     
-        shutil.copyfile(
-            config["template_file"],
-            config["intake_file"]
-            )
+                        _anitem += dominate.tags.h4(this_entry["hash"])
+                        _anitem += dominate.tags.h4(" ".join(this_entry["t"]))
+        
+                        for j in this_entry["f"]:
+                            _anitem += dominate.tags.h4(dominate.tags.a(j,
+                                href=config["notebook_directory"]+"/"+this_entry["hash"]+"/"+j))
+        
+                        _anitem += dominate.tags.p(dominate.util.raw(this_entry["n"]))
+    
+                test_report.write(report.render())
 
     if args.q:
 
@@ -143,7 +196,7 @@ if __name__ == '__main__':
                         _anitem += dominate.tags.h4(dominate.tags.a(j,
                             href=config["notebook_directory"]+"/"+i["hash"]+"/"+j))
     
-                    _anitem += dominate.tags.p(i["n"])
+                    _anitem += dominate.tags.p(dominate.util.raw(this_entry["n"]))
 
                 else:
 
@@ -156,7 +209,7 @@ if __name__ == '__main__':
                         _anitem += dominate.tags.h4(dominate.tags.a(j,
                             href=config["notebook_directory"]+"/"+i["hash"]+"/"+j))
     
-                    _anitem += dominate.tags.p(i["n"])
+                    _anitem += dominate.tags.p(dominate.util.raw(this_entry["n"]))
 
             f.write(report.render())
 
