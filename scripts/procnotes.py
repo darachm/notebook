@@ -11,6 +11,7 @@ import re
 import shutil
 import dominate
 import dominate.util
+import markdown
 
 if __name__ == '__main__':
 
@@ -86,7 +87,7 @@ This corresponds to the `d:`, `t:`, and `n:` fields respectively.
             except:
                 this_entry["correction"] = ""
     
-            this_hash_hex = hashlib.sha1(
+            this_hash_hex = str(this_entry["d"])+"_"+hashlib.sha1(
                     (   str(this_entry["d"]) + 
                         #"".join(this_entry["t"]) +
                         #"".join(this_entry["f"]) +
@@ -174,10 +175,11 @@ This corresponds to the `d:`, `t:`, and `n:` fields respectively.
                             _anitem += dominate.tags.h4(dominate.tags.a(j,
                                 href=config["notebook_directory"]+"/"+this_entry["hash"]+"/"+j))
         
-                        _anitem += dominate.tags.p(dominate.util.raw(this_entry["n"]))
+                        _anitem += dominate.tags.p(dominate.util.raw(markdown.markdown(this_entry["n"])))
     
                     else:
     
+                        _anitem = _entrylist.add(dominate.tags.li())
                         _anitem += dominate.tags.h6("--- correction ---")
     
                         _anitem += dominate.tags.h4(this_entry["hash"])
@@ -187,7 +189,7 @@ This corresponds to the `d:`, `t:`, and `n:` fields respectively.
                             _anitem += dominate.tags.h4(dominate.tags.a(j,
                                 href=config["notebook_directory"]+"/"+this_entry["hash"]+"/"+j))
         
-                        _anitem += dominate.tags.p(dominate.util.raw(this_entry["n"]))
+                        _anitem += dominate.tags.p(dominate.util.raw(markdown.markdown(this_entry["n"])))
     
                 test_report.write(report.render())
 
@@ -228,10 +230,11 @@ This corresponds to the `d:`, `t:`, and `n:` fields respectively.
                         _anitem += dominate.tags.h4(dominate.tags.a(j,
                             href=config["notebook_directory"]+"/"+i["hash"]+"/"+j))
     
-                    _anitem += dominate.tags.p(dominate.util.raw(i["n"]))
+                    _anitem += dominate.tags.p(dominate.util.raw(markdown.markdown(i["n"])))
 
                 else:
 
+                    _anitem = _entrylist.add(dominate.tags.li())
                     _anitem += dominate.tags.h6("--- correction ---")
 
                     _anitem += dominate.tags.h4(i["hash"])
@@ -241,7 +244,7 @@ This corresponds to the `d:`, `t:`, and `n:` fields respectively.
                         _anitem += dominate.tags.h4(dominate.tags.a(j,
                             href=config["notebook_directory"]+"/"+i["hash"]+"/"+j))
     
-                    _anitem += dominate.tags.p(dominate.util.raw(i["n"]))
+                    _anitem += dominate.tags.p(dominate.util.raw(markdown.markdown(i["n"])))
 
             f.write(report.render())
 
