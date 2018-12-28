@@ -145,7 +145,7 @@ This corresponds to the `d:`, `t:`, and `n:` fields respectively.
               
                   shutil.move(
                       config["intake_file"],
-                      config["trash"]+"/"+this_hash_hex+"_notes.txt"
+                      config["trash"]+"/"+this_hash_hex+"_"+str(datetime.datetime.now())+"_notes.txt"
                       )
               
         elif args.t:
