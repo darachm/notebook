@@ -90,7 +90,8 @@ This corresponds to the `d:`, `t:`, and `n:` fields respectively.
                         #"".join(this_entry["t"]) +
                         #"".join(this_entry["f"]) +
                         "".join(this_entry["n"]) +
-                        str(this_entry["correction"])
+                        str(this_entry["correction"]) +
+                        str(datetime.datetime.now())
                         ).encode("utf-8")
                     ).hexdigest()[:10]
     
