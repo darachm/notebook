@@ -1,6 +1,7 @@
 
 body {
-    max-width: 500px;
+    max-width: 70%;
+    min-width: 400px;
     border: 1px black solid;
     margin: auto;
     margin-top: 2em;

@@ -113,7 +113,7 @@ This corresponds to the `d:`, `t:`, and `n:` fields respectively.
 
             for this_entry in procd_entries:
 
-                  entry_dir = config["notebook_directory"]+"/"+this_hash_hex
+                  entry_dir = config["notebook_directory"]+"/"+this_entry["hash"]
                   print(entry_dir)
                   os.makedirs(entry_dir,exist_ok=True)
       
@@ -136,7 +136,6 @@ This corresponds to the `d:`, `t:`, and `n:` fields respectively.
                       for i, afile in enumerate(this_entry["f"]):
                           this_real_filename = re.sub(r"^[0-9a-z]{10}_","",this_entry["f"][i])
                           try:
-                              pass
                               shutil.move(
                                   this_real_filename,
                                   config["trash"]+"/"+this_real_filename
@@ -144,7 +143,7 @@ This corresponds to the `d:`, `t:`, and `n:` fields respectively.
                           except:
                               pass
               
-                  shutil.move(
+                  shutil.copy(
                       config["intake_file"],
                       config["trash"]+"/"+this_hash_hex+"_"+
                         re.sub(" ","-",str(datetime.datetime.now()))+
