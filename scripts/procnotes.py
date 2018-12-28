@@ -4,7 +4,6 @@ import argparse
 import os
 import sys
 import yaml
-import maps
 import hashlib 
 import datetime
 import isodate
@@ -20,10 +19,22 @@ if __name__ == '__main__':
     parser.add_argument("-q",help="query out a tag")
     parser.add_argument("-t",help="test formatting",action="store_true")
     parser.add_argument("--config-file",help="what is config?",
-        default="config.notes") 
+        default=".notebook_config") 
     args = parser.parse_args()
 
-    config = yaml.load(open(args.config_file,"r"))
+    try:
+        config = yaml.load(open(args.config_file,"r"))
+    except:
+        raise Exception("\n"+""" 
+There's no config file! Please make one. Here's an example:
+
+template_file: ".notes.yaml"
+intake_file: "notes.yaml"
+notebook_directory: "book"
+raw_notebook: "raw_notebook.yaml"
+trash: "trash"
+css: .style.css
+""")
 
     if not args.p and args.q == "":
         raise Exception("I need to know what to do, you've told me nothing to do")
