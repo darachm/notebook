@@ -1,4 +1,2 @@
-- make it so I can query with a list of tags
 - make a Makefile eventually to automate the use of the script for certain types
     of reports
-- make it start up nicely from empty directory okay
