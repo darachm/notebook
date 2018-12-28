@@ -1,2 +1,9 @@
 - make a Makefile eventually to automate the use of the script for certain types
     of reports
+- branch off to track the raw notebook, and setup a rsync/rclone call to back 
+    up everything
+- future-proof the YAML storage so I can make sure I can reformat it independent
+    of the queries, maybe split the software up so it's parse-only and query
+    only....
+- refactor to make sure nothing can be over-written, and is findable in multiple
+    ways
