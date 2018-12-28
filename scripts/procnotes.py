@@ -17,6 +17,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-p",help="parse it?",action="store_true") 
     parser.add_argument("-q",help="query out a tag")
+    parser.add_argument("-c",help="copy over template file",action="store_true")
     parser.add_argument("-t",help="test formatting",action="store_true")
     parser.add_argument("--config-file",help="what is config?",
         default=".notebook_config") 
@@ -42,7 +43,13 @@ css: .style.css
     try:
         raw_notebook = list(yaml.load_all(open(config["notebook_directory"]+"/"+config["raw_notebook"],"r")))
     except:
-        raise Exception("can't read raw notebook")
+        os.makedirs(config["notebook_directory"],exist_ok=True)
+        with open(config["notebook_directory"]+"/"+config["raw_notebook"],"w") as f:
+            f.write("")
+        raise Exception("\n"+"""
+I couldn't find a raw notebook file, at all. You are probably just starting up.
+So I made an empty file, which should work. Re-run it!
+""")
     if len(raw_notebook) == 0:
         raw_notebook = {}
     else:
@@ -50,13 +57,28 @@ css: .style.css
 
     if args.p:
 
-        these_entries = list(yaml.load_all(open(config["intake_file"],"r")))
+        try:
+            these_entries = list(yaml.load_all(open(config["intake_file"],"r")))
+        except:
+            shutil.copyfile(
+                config["template_file"],
+                config["intake_file"]
+                )
+            raise Exception("\n"+"""
+I couldn't find an intake file, at all. You are probably just starting up.
+So I copied over the template to `notes.yaml` and you should be able to edit
+that and then retry parsing the intake file (`notes.yaml`)
+""")
+
         procd_entries = list()
 
         for this_entry in these_entries:
     
             if this_entry["d"] is None or this_entry["t"] is [] or this_entry["n"] is None:
-                raise Exception("You need to have a date, tags, and notes!")
+                raise Exception("\n"+"""
+For a note to be parsed and recorded, you need to have a date, tags, and notes!
+This corresponds to the `d:`, `t:`, and `n:` fields respectively.
+""")
     
             try:
                 this_entry["correction"]
@@ -125,10 +147,6 @@ css: .style.css
                       config["trash"]+"/"+this_hash_hex+"_notes.txt"
                       )
               
-                  shutil.copyfile(
-                      config["template_file"],
-                      config["intake_file"]
-                      )
         elif args.t:
 
             with open("test_report.html","w") as test_report:
@@ -207,7 +225,7 @@ css: .style.css
                         _anitem += dominate.tags.h4(dominate.tags.a(j,
                             href=config["notebook_directory"]+"/"+i["hash"]+"/"+j))
     
-                    _anitem += dominate.tags.p(dominate.util.raw(this_entry["n"]))
+                    _anitem += dominate.tags.p(dominate.util.raw(i["n"]))
 
                 else:
 
@@ -220,10 +238,16 @@ css: .style.css
                         _anitem += dominate.tags.h4(dominate.tags.a(j,
                             href=config["notebook_directory"]+"/"+i["hash"]+"/"+j))
     
-                    _anitem += dominate.tags.p(dominate.util.raw(this_entry["n"]))
+                    _anitem += dominate.tags.p(dominate.util.raw(i["n"]))
 
             f.write(report.render())
 
     with open(config["notebook_directory"]+"/"+config["raw_notebook"],"w") as notefile:
         notefile.write(yaml.dump(raw_notebook))
+
+    if args.c:
+        shutil.copyfile(
+           config["template_file"],
+           config["intake_file"]
+           )
 
