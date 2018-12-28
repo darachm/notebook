@@ -44,11 +44,13 @@ css: .style.css
         raw_notebook = list(yaml.load_all(open(config["notebook_directory"]+"/"+config["raw_notebook"],"r")))
     except:
         os.makedirs(config["notebook_directory"],exist_ok=True)
-        with open(config["notebook_directory"]+"/"+config["raw_notebook"],"w") as f:
-            f.write("")
         raise Exception("\n"+"""
-I couldn't find a raw notebook file, at all. You are probably just starting up.
-So I made an empty file, which should work. Re-run it!
+I couldn't read the raw notebook file, at all. 
+
+If this is an error, fix it.
+
+If you're just starting up, then you should just make an empty file there 
+(probably at `books/raw_notebook.yaml`).
 """)
     if len(raw_notebook) == 0:
         raw_notebook = {}
@@ -60,14 +62,13 @@ So I made an empty file, which should work. Re-run it!
         try:
             these_entries = list(yaml.load_all(open(config["intake_file"],"r")))
         except:
-            shutil.copyfile(
-                config["template_file"],
-                config["intake_file"]
-                )
             raise Exception("\n"+"""
-I couldn't find an intake file, at all. You are probably just starting up.
-So I copied over the template to `notes.yaml` and you should be able to edit
-that and then retry parsing the intake file (`notes.yaml`)
+I couldn't read the intake file, at all. 
+
+If this is a mistake, fix it.
+
+If you are just starting up, then re-run with the `-c` flag to just copy over
+the template to the intake file (probably `notes.yaml`)
 """)
 
         procd_entries = list()
@@ -90,8 +91,7 @@ This corresponds to the `d:`, `t:`, and `n:` fields respectively.
                         #"".join(this_entry["t"]) +
                         #"".join(this_entry["f"]) +
                         "".join(this_entry["n"]) +
-                        str(this_entry["correction"]) +
-                        str(datetime.datetime.now())
+                        str(this_entry["correction"])
                         ).encode("utf-8")
                     ).hexdigest()[:10]
     
@@ -145,7 +145,9 @@ This corresponds to the `d:`, `t:`, and `n:` fields respectively.
               
                   shutil.move(
                       config["intake_file"],
-                      config["trash"]+"/"+this_hash_hex+"_"+str(datetime.datetime.now())+"_notes.txt"
+                      config["trash"]+"/"+this_hash_hex+"_"+
+                        re.sub(" ","-",str(datetime.datetime.now()))+
+                        "_notes.txt"
                       )
               
         elif args.t:
